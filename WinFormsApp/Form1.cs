@@ -21,7 +21,6 @@ namespace WinFormsApp
 
         private void InitializeListView()
         {
-            // Set up columns in the ListView
             listView.View = View.Details;
             listView.Columns.Add("Nome", 150);
             listView.Columns.Add("Sobrenome", 150);
@@ -87,8 +86,7 @@ namespace WinFormsApp
         private void buttonSubmit_Click(object sender, EventArgs e)
         {
             AdicionarPessoa();
-
-            // Limpar os TextBoxes após enviar
+            
             nomeTextBox.Clear();
             sobrenomeTextBox.Clear();
             emailTextBox.Clear();
@@ -214,7 +212,6 @@ namespace WinFormsApp
             {
                 if (comboBox.SelectedItem != null)
                 {
-                    // Ordena os itens do ListView com base na propriedade fornecida
                     var itemsOrdenados = listView.Items.Cast<ListViewItem>()
                         .OrderBy(item => item.SubItems[comboBox.SelectedIndex].Text)
                         .ToList();
@@ -240,7 +237,6 @@ namespace WinFormsApp
             {
                 if (comboBox.SelectedItem != null)
                 {
-                    // Ordena os itens do ListView com base na propriedade fornecida
                     var itemsOrdenados = listView.Items.Cast<ListViewItem>()
                         .OrderByDescending(item => item.SubItems[comboBox.SelectedIndex].Text)
                         .ToList();
