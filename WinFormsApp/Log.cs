@@ -2,19 +2,19 @@
 {
     public partial class Form1 : Form
     {
-        private Stack<string> mensagensDeErro = new();
+        private Stack<string> _mensagensDeErro = new();
         
         private void CapturarErro(string mensagem)
         {
-            mensagensDeErro.Push($"[{DateTime.Now}] {mensagem}");
+            _mensagensDeErro.Push($"[{DateTime.Now}] {mensagem}");
         }
 
         private void ExibirMensagensDeErro()
         {
-            if (mensagensDeErro.Count > 0)
+            if (_mensagensDeErro.Count > 0)
             {
                 string mensagem = "Mensagens de erro:\n\n";
-                foreach (string erro in mensagensDeErro)
+                foreach (string erro in _mensagensDeErro)
                 {
                     mensagem += erro + "\n";
                 }
@@ -28,7 +28,7 @@
         }
         private void LimparErros()
         {
-            mensagensDeErro.Clear();        
+            _mensagensDeErro.Clear();        
         }
         
         private void buttonExibirErros_Click(object sender, EventArgs e)

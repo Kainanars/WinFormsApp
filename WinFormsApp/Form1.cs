@@ -1,24 +1,22 @@
-using System.Reflection;
-
 namespace WinFormsApp
 
 {
-    public partial class Form1 : Form, IObserver
+    public partial class Form1 : IObserver
     {
-        private Notifier notifier = new();
+        private Notifier _notifier = new();
 
-        string database = "../../../database.csv";
+        string _database = "../../../database.csv";
         
         public Form1()
         {
             InitializeComponent();
             InitializeListView();
             CarregarDadosDeArquivoCsv();
-            notifier.RegisterObserver(this);
+            _notifier.RegisterObserver(this);
         }
         
 
-        private List<Pessoa> pessoas = new();
+        private List<Pessoa> _pessoas = new();
         
 
         private void InitializeListView()
@@ -34,11 +32,11 @@ namespace WinFormsApp
         {
             try
             {
-                using (StreamWriter writer = new StreamWriter(database))
+                using (StreamWriter writer = new StreamWriter(_database))
                 {
                     writer.WriteLine("Nome,Sobrenome,Email");
 
-                    foreach (var pessoa in pessoas)
+                    foreach (var pessoa in _pessoas)
                     {
                         writer.WriteLine($"{pessoa.Nome},{pessoa.Sobrenome},{pessoa.Email}");
                     }
@@ -52,33 +50,28 @@ namespace WinFormsApp
         
         private void CarregarDadosDeArquivoCsv()
         {
-            if (!File.Exists(database))
+            if (!File.Exists(_database))
             {
-                notifier.NotifyObservers($"Arquivo de banco de dados não encontrado em: {database}");
+                _notifier.NotifyObservers($"Arquivo de banco de dados não encontrado em: {_database}");
                 CapturarErro("Erro ao buscar arquivo de banco de dados");
                 return;
             }
 
             try
             {
-                pessoas.Clear();
+                _pessoas.Clear();
 
-                using (StreamReader reader = new StreamReader(database))
+                using (StreamReader reader = new StreamReader(_database))
                 {
                     reader.ReadLine(); // Ignora o cabeçalho
 
                     string linha;
-                    while ((linha = reader.ReadLine()) != null)
+                    while ((linha = reader.ReadLine()!) != null)
                     {
                         string[] campos = linha.Split(',');
                         if (campos.Length == 3)
                         {
-                            pessoas.Add(new Pessoa
-                            {
-                                Nome = campos[0],
-                                Sobrenome = campos[1],
-                                Email = campos[2]
-                            });
+                            _pessoas.Add(new Pessoa(campos[0], campos[1], campos[2]));
                         }
                     }
                 }
@@ -115,7 +108,7 @@ namespace WinFormsApp
                 var propriedade = typeof(Pessoa).GetProperty(filtro);
                 if (propriedade != null)
                 {
-                    var resultadosPesquisa = pessoas.Where(p => propriedade.GetValue(p)!.ToString()!.IndexOf(pesquisaTextBox.Text, StringComparison.OrdinalIgnoreCase) >= 0).ToList();
+                    var resultadosPesquisa = _pessoas.Where(p => propriedade.GetValue(p)!.ToString()!.IndexOf(pesquisaTextBox.Text, StringComparison.OrdinalIgnoreCase) >= 0).ToList();
                     AtualizarListViewComFiltro(resultadosPesquisa);
                     resumoLabel.Visible = true;
                 }
@@ -143,18 +136,13 @@ namespace WinFormsApp
                     !string.IsNullOrWhiteSpace(sobrenomeTextBox.Text) && 
                     !string.IsNullOrWhiteSpace(emailTextBox.Text))
                 {
-                    var pessoa = new Pessoa
-                    {
-                        Nome = nomeTextBox.Text,
-                        Sobrenome = sobrenomeTextBox.Text,
-                        Email = emailTextBox.Text
-                    };
+                    var pessoa = new Pessoa(nomeTextBox.Text, sobrenomeTextBox.Text, emailTextBox.Text);
 
-                    pessoas.Add(pessoa);
+                    _pessoas.Add(pessoa);
                     SalvarDadosEmArquivoCsv();
                     AtualizarListView();
                 
-                    notifier.NotifyObservers($"Usuário adicionado: {pessoa.Nome} {pessoa.Sobrenome}");
+                    _notifier.NotifyObservers($"Usuário adicionado: {pessoa.Nome} {pessoa.Sobrenome}");
 
                 }
                 else
@@ -176,7 +164,7 @@ namespace WinFormsApp
             try
             {
                 listView.Items.Clear();
-                foreach (var pessoa in pessoas)
+                foreach (var pessoa in _pessoas)
                 {
                     listView.Items.Add(new ListViewItem(new[] { pessoa.Nome, pessoa.Sobrenome, pessoa.Email }));
                 }
@@ -237,7 +225,7 @@ namespace WinFormsApp
                     {
                         listView.Items.Add(item);
                     }
-                    notifier.NotifyObservers($"Lista em ordem ascendente de {comboBox.SelectedItem}s");
+                    _notifier.NotifyObservers($"Lista em ordem ascendente de {comboBox.SelectedItem}s");
                 }
             }
             catch (Exception ex)
@@ -263,7 +251,7 @@ namespace WinFormsApp
                     {
                         listView.Items.Add(item);
                     }
-                    notifier.NotifyObservers($"Lista em ordem descendente de {comboBox.SelectedItem}s");
+                    _notifier.NotifyObservers($"Lista em ordem descendente de {comboBox.SelectedItem}s");
                 }
             }
             catch (Exception ex)
